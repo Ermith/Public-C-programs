@@ -56,6 +56,7 @@ void printLines(int from, int to, boolean numbers);
 void printLine(int num, boolean numbers);
 boolean addressValidity(int address);
 boolean addressesValidity(int from, int to);
+boolean zero_address_check(command cmd);
 void getCommand(command *result);
 char * executeCommand(command cmd);
 size_t readline(char *line, size_t len);
@@ -195,7 +196,7 @@ main(int argc, char **argv) {
 void
 moveTo(int i) {
 // printf("moving to line %d\n", i);
-	while (i < n) {		
+	while (i < n) {
 		currentLine = (*currentLine).prev;
 		n--;
 // printf(" moved to %d\n", n);
@@ -636,13 +637,13 @@ insertCMD(int i) {
 		n++;
 	}
 
-/*printf("lines read:");
-line *tmpLine;
-tmpLine = firstLine;
-while (tmpLine != NULL) {
-	printf("%s\n", (*tmpLine).str);
-	tmpLine = (*tmpLine).next;
-}*/
+/*	printf("lines read:");
+	line *tmpLine;
+	tmpLine = firstLine;
+	while (tmpLine != NULL) {
+		printf("%s\n", (*tmpLine).str);
+		tmpLine = (*tmpLine).next;
+	} */
 
 	while (firstLine != NULL) {
 		if (prevLine != NULL)
@@ -662,12 +663,12 @@ while (tmpLine != NULL) {
 }
 
 boolean
-fucking_piece_of_shit_bitch_ass_dumm_looking_insert_command(command *cmd) {
-	if ((*cmd).first < 0 || (*cmd).first > lines)
+zero_address_check(command cmd) {
+	if (cmd.first < 0 || cmd.first > lines)
 		return (no);
 
-	if ((*cmd).vars == 2) {
-		if ((*cmd).second < 0 || (*cmd).second > lines)
+	if (cmd.vars == 2) {
+		if (cmd.second < 0 || cmd.second > lines)
 			return (no);
 	}
 
@@ -808,7 +809,7 @@ executeCommand(command cmd) {
 		return (INVALID_ADDRESS_ERROR);
 
 	if (cmd.name[0] == 'i') {
-		if(!fucking_piece_of_shit_bitch_ass_dumm_looking_insert_command(&cmd))
+		if (!zero_address_check(cmd))
 			return (INVALID_ADDRESS_ERROR);
 	} else {
 		if (cmd.vars == 2) {
@@ -833,7 +834,11 @@ executeCommand(command cmd) {
 				fileName = cmd.name + 2;
 
 			if ((fp = fopen((cmd.name + 2), "w")) == NULL) {
-				fprintf(stderr, "%s: %s\n", cmd.name + 2, strerror(errno));
+				fprintf(
+					stderr, "%s: %s\n",
+					cmd.name + 2,
+					strerror(errno));
+
 				fflush(stderr);
 				return (CANNOT_OPEN_OUTPUT_FILE_ERROR);
 			}
@@ -841,9 +846,14 @@ executeCommand(command cmd) {
 		} else {
 			if (fileName == NULL)
 				return (NO_CURRENT_FILE_NAME_ERROR);
-			
+
 			if ((fp = fopen(fileName, "w")) == NULL) {
-				fprintf(stderr, "%s: %s\n", fileName, strerror(errno));
+				fprintf(
+					stderr,
+					"%s: %s\n",
+					fileName,
+					strerror(errno));
+
 				fflush(stderr);
 				return (CANNOT_OPEN_OUTPUT_FILE_ERROR);
 			}
