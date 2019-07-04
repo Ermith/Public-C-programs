@@ -15,6 +15,7 @@
 #define	BUFFER_MODIFIED_WARNING "Warning: buffer modified"
 #define	UNEXPECTED_COMMAND_SUFFIX_ERROR "Unexpected command suffix"
 #define	CANNOT_OPEN_OUTPUT_FILE_ERROR "Cannot open output file"
+#define	NO_CURRENT_FILE_NAME_ERROR "No current filename"
 
 // string representation
 typedef struct lines {
@@ -44,6 +45,7 @@ static boolean lastQ = no;
 static char *buffer;
 static int err = 0;
 static char *fileName = NULL;
+// static int all = 0;
 
 char * parseFile(FILE *fp);
 void classifyOption(char c);
@@ -74,8 +76,7 @@ main(int argc, char **argv) {
 	// parsing options
 	int i;
 	for (i = 1; i < argc && argv[i][0] == '-'; i++) {
-		if (argv[i][1] == '-')
-		{
+		if (argv[i][1] == '-') {
 			classifyStringOption(argv[i]);
 		} else {
 			for (int j = 1; argv[i][j] != '\0'; j++) {
@@ -86,6 +87,7 @@ main(int argc, char **argv) {
 
 	currentLine = NULL;
 
+	// check whether the file name is given
 	if (i != argc) {
 
 		// setting up the first line
@@ -97,6 +99,8 @@ main(int argc, char **argv) {
 			.next = NULL
 		};
 		(*currentLine).str[0] = '\0';
+// all += 2;
+// printf("%d\n", all);
 
 		// parsing the file
 		fileName = argv[i];
@@ -137,6 +141,9 @@ main(int argc, char **argv) {
 		.second = 0
 	};
 
+// all += 2;
+// printf("%d\n", all);
+
 	readline(buffer, sizeMax);
 
 	while (!feof(stdin)) {
@@ -172,10 +179,14 @@ main(int argc, char **argv) {
 // printf("quiting\n");
 // printf("address of a buffer: %p\n", &buffer);
 	free(buffer);
+// all--;
+// printf("%d\n", all);
 // printf("%s\n", cmd.name);
 // printf("free(cmd.name)\n");
 // printf("address of cmd.name: %p\n", &(cmd.name));
 	free(cmd.name);
+// all--;
+// printf("%d\n", all);
 // printf("freeing lines\n");
 	freeLines();
 	exit(err);
@@ -214,13 +225,15 @@ freeLines(void) {
 		free((*currentLine).str);
 		free(currentLine);
 		currentLine = prev;
+// all -= 2;
+// printf("%d\n", all);
 	}
 }
 
 void
 unknownOptionC(char c) {
 	fprintf(stderr, "ed: illegal option -- %c\n", c);
-	fprintf(stderr, "usage: ed file\n");
+	fprintf(stderr, "usage: ed [file]\n");
 	fflush(stderr);
 	exit(1);
 }
@@ -228,7 +241,7 @@ unknownOptionC(char c) {
 void
 unknownOptionS(char *string) {
 		fprintf(stderr, "ed: illegal option -- %s\n", string);
-		fprintf(stderr, "usage: ed file\n");
+		fprintf(stderr, "usage: ed [file]\n");
 		fflush(stderr);
 		exit(1);
 }
@@ -270,7 +283,7 @@ classifyOption(char c) {
 void
 classifyStringOption(char *string) {
 	// same here as in "classifyOption"
-	unknownOptionS(string);
+	unknownOptionS(string + 2);
 
 	if (strcmp(string, "--help") == 0) {
 		printHelp();
@@ -318,11 +331,18 @@ parseFile(FILE *fp) {
 			if ((nextLine = (line *) malloc(sizeof (line))) == NULL)
 				return (OUT_OF_MEMMORY_ERROR);
 
+// all++;
+// printf("%d\n", all);
+
 			char *string;
 			if ((string = (char *) malloc(MAX_LENGTH)) == NULL) {
 				free(nextLine);
+// all--;
+// printf("%d\n", all);
 				return (OUT_OF_MEMMORY_ERROR);
 			}
+// all++;
+// printf("%d\n", all);
 
 			// starting string is ""
 			string[0] = '\0';
@@ -352,6 +372,8 @@ parseFile(FILE *fp) {
 		free((*currentLine).next);
 		(*currentLine).next = NULL;
 		n -= 1;
+// all -= 2;
+// printf("%d\n", all);
 	}
 
 	lines = n;
@@ -476,6 +498,8 @@ getCommand(command *result) {
 	int position = 0;
 	int num = 0;
 	char *string = malloc(MAX_LENGTH);
+// all++;
+// printf("%d\n", all);
 	strcpy(string, buffer);
 // printf("copied string: %s\n", string);
 
@@ -517,6 +541,8 @@ getCommand(command *result) {
 	strcpy((*result).name, string + position);
 // printf("copy -> from: %s  to  %s\n\n", string, (*result).name);
 	free(string);
+// all--;
+// printf("%d\n", all);
 }
 
 boolean
@@ -546,6 +572,8 @@ readLines(void) {
 	char *string;
 	firstLine = NULL;
 	string = (char *)malloc(MAX_LENGTH);
+// all++;
+// printf("%d\n", all);
 
 	readline(string, MAX_LENGTH);
 // printf("first line read: %s\n", string);
@@ -560,6 +588,9 @@ readLines(void) {
 				.next = NULL
 			};
 
+// all += 2;
+// printf("%d\n", all);
+
 			strcpy((*firstLine).str, string);
 			myLine = firstLine;
 		} else {
@@ -571,6 +602,9 @@ readLines(void) {
 				.next = NULL
 			};
 
+// all += 2;
+// printf("%d\n", all);
+
 			(*myLine).next = tmp;
 			strcpy((*tmp).str, string);
 			myLine = tmp;
@@ -580,6 +614,9 @@ readLines(void) {
 // printf(" another one: %s\n", string);
 	}
 
+	free(string);
+// all--;
+// printf("%d\n", all);
 	return (firstLine);
 }
 
@@ -668,6 +705,8 @@ deleteLine(int address) {
 
 	free((*tmp).str);
 	free(tmp);
+// all -= 2;
+// printf("%d\n", all);
 	lines--;
 
 // printf("\n");
@@ -698,6 +737,8 @@ deleteLines(int from, int to) {
 		if (currentLine != NULL) {
 			free((*currentLine).str);
 			free(currentLine);
+// all -= 2;
+// printf("%d\n", all);
 		}
 
 		currentLine = nextLine;
@@ -726,6 +767,8 @@ deleteLines(int from, int to) {
 
 	free((*tmp).str);
 	free(tmp);
+// all -= 2;
+// printf("%d\n", all);
 	lines--;
 // printf("here\n");
 
@@ -796,6 +839,9 @@ executeCommand(command cmd) {
 			}
 
 		} else {
+			if (fileName == NULL)
+				return (NO_CURRENT_FILE_NAME_ERROR);
+			
 			if ((fp = fopen(fileName, "w")) == NULL) {
 				fprintf(stderr, "%s: %s\n", fileName, strerror(errno));
 				fflush(stderr);
