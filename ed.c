@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <stdbool.h>
 
-// v 37
+// v 40
 
 #define	MAX_LENGTH 1024
 #define	UNKNOWN_COMMAND_ERROR "Unknown command"
@@ -98,13 +98,14 @@ main(int argc, char **argv) {
 	if (i != argc) {
 
 		// setting up the first line
-
-		if ((currentLine = (line_t *) malloc(sizeof (line_t))) == NULL) {
+		currentLine = (line_t *) malloc(sizeof (line_t);
+		if (currentLine) == NULL) {
 			fprintf(stderr, "%s\n", OUT_OF_MEMMORY_ERROR);
 			exit(1);
 		}
 
-		if (((*currentLine).str = (char *) malloc(MAX_LENGTH)) == NULL) {
+		(*currentLine).str = (char *) malloc(MAX_LENGTH);
+		if ((*currentLine).str == NULL) {
 			free(currentLine);
 			fprintf(stderr, "%s\n", OUT_OF_MEMMORY_ERROR);
 			exit(1);
@@ -207,7 +208,7 @@ main(int argc, char **argv) {
 
 			if (printErrors)
 				fprintf(stderr, "%s\n", error);
-			
+
 			lastError = error;
 			fflush(stderr);
 		}
@@ -294,8 +295,8 @@ classifyOption(char c) {
 	// we exit right in the beginning
 	unknownOptionC(c);
 
-/*
-	// this will not occure
+/*	this will not occure
+
 	switch (c) {
 	case 'h':
 		printHelp();
@@ -329,8 +330,7 @@ classifyStringOption(char *string) {
 	// same here as in "classifyOption"
 	unknownOptionS(string + 2);
 
-/*
-	if (strcmp(string, "--help") == 0) {
+/*	if (strcmp(string, "--help") == 0) {
 		printHelp();
 		exit(0);
 	} else if (strcmp(string, "--version") == 0) {
@@ -380,7 +380,8 @@ parseFile(FILE *fp) {
 			// getting memmory for the new line and its string
 			line_t *nextLine;
 
-			if ((nextLine = (line_t *) malloc(sizeof (line_t))) == NULL)
+			nextLine = (line_t *) malloc(sizeof (line_t));
+			if (nextLine == NULL)
 				return (OUT_OF_MEMMORY_ERROR);
 
 // all++;
