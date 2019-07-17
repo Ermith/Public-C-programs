@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <stdbool.h>
 
-// v 40
+// v 41
 
 #define	MAX_LENGTH 1024
 #define	UNKNOWN_COMMAND_ERROR "Unknown command"
@@ -98,8 +98,8 @@ main(int argc, char **argv) {
 	if (i != argc) {
 
 		// setting up the first line
-		currentLine = (line_t *) malloc(sizeof (line_t);
-		if (currentLine) == NULL) {
+		currentLine = (line_t *) malloc(sizeof (line_t));
+		if (currentLine == NULL) {
 			fprintf(stderr, "%s\n", OUT_OF_MEMMORY_ERROR);
 			exit(1);
 		}
